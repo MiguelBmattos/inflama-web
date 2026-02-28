@@ -12,6 +12,7 @@ import { OutOfLikesModal } from './src/components/OutOfLikesModal';
 import { Profile } from './src/types/profile';
 import { MOCK_PROFILES } from './src/data/mockProfiles';
 import { theme } from './src/theme';
+import { supabase } from "./services/supabase";
 
 const MOBILE_MAX_WIDTH = 768;
 const INITIAL_LIKES = 3;
@@ -24,6 +25,18 @@ type StoredMatch = {
 };
 
 export default function App() {
+  useEffect(() => {
+  async function testConnection() {
+    const { data, error } = await supabase
+      .from("swipes")
+      .select("*");
+
+    console.log("Supabase test:", data, error);
+  }
+
+  testConnection();
+}, []);
+
   const { width } = useWindowDimensions();
   const isWebDesktop = Platform.OS === 'web' && width > MOBILE_MAX_WIDTH;
 
