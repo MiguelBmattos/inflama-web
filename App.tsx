@@ -13,10 +13,12 @@ import { Profile } from './src/types/profile';
 import { MOCK_PROFILES } from './src/data/mockProfiles';
 import { theme } from './src/theme';
 import { supabase } from "./services/supabase";
+import { createSwipe } from "./services/swipeService";
 
 const MOBILE_MAX_WIDTH = 768;
 const INITIAL_LIKES = 3;
 const MATCHES_STORAGE_KEY = 'inflama_matches';
+const CURRENT_USER_ID = "demo_user";
 
 type StoredMatch = {
   id: string;
@@ -83,12 +85,43 @@ export default function App() {
     setOutOfLikesModalVisible(false);
   }, []);
 
-  const handleSwipeLeft = useCallback((profile: Profile) => {
+  const handleSwipeLeft = useCallback(async (profile: Profile) => {
     console.log('Nope:', profile.name);
+
+    try {
+    const { error } = await createSwipe(
+      CURRENT_USER_ID,
+      profile.id,
+      false
+    );
+
+    if (error) {
+      console.error("Error saving swipe left:", error);
+    }
+  } catch (err) {
+    console.error("Unexpected error saving swipe left:", err);
+  }
   }, []);
 
-  const handleSwipeRight = useCallback((profile: Profile) => {
+  const handleSwipeRight = useCallback(async (profile: Profile) => {
     console.log('Like:', profile.name);
+
+    try {
+    const { error } = await createSwipe(
+      CURRENT_USER_ID,
+      profile.id,
+      true
+    );
+
+    if (error) {
+      console.error("Error saving swipe right:", error);
+      return; 
+    }
+  } catch (err) {
+    console.error("Unexpected error saving swipe right:", err);
+    return;
+  }
+
     setLikesRemaining((n) => Math.max(0, n - 1));
     setMatchModal({ visible: true, name: profile.name, instagram: profile.instagram });
     setMatches((prev) => {
