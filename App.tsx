@@ -14,6 +14,7 @@ import { MOCK_PROFILES } from './src/data/mockProfiles';
 import { theme } from './src/theme';
 import { supabase } from "./services/supabase";
 import { createSwipe } from "./services/swipeService";
+import { checkMatch } from "./services/swipeService";
 
 const MOBILE_MAX_WIDTH = 768;
 const INITIAL_LIKES = 3;
@@ -117,12 +118,32 @@ export default function App() {
       console.error("Error saving swipe right:", error);
       return; 
     }
+
+    const { data: matchData, error: matchError } =
+      await checkMatch(CURRENT_USER_ID, profile.id);
+
+    if (matchError) {
+      console.error("Error checking match:", matchError);
+      return;
+    }
+
+    if (matchData) {
+      console.log("It's a match!");
+
+      setMatchModal({
+        visible: true,
+        name: profile.name,
+        instagram: profile.instagram,
+      });
+    }
+
+    setLikesRemaining((n) => Math.max(0, n - 1));
+
   } catch (err) {
-    console.error("Unexpected error saving swipe right:", err);
+    console.error("Unexpected error:", err);
     return;
   }
 
-    setLikesRemaining((n) => Math.max(0, n - 1));
     setMatchModal({ visible: true, name: profile.name, instagram: profile.instagram });
     setMatches((prev) => {
       const next: StoredMatch[] = [
