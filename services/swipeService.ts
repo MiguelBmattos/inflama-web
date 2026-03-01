@@ -17,3 +17,16 @@ export async function createSwipe(
 
   return { data, error };
 }
+
+export async function checkMatch(
+  userId: string,
+  likedUserId: string
+) {
+  return await supabase
+    .from("swipes")
+    .select("*")
+    .eq("user_id", likedUserId)
+    .eq("liked_user_id", userId)
+    .eq("liked", true)
+    .maybeSingle();
+}
